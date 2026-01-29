@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "pAB/kxxL9p4=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\mzaba\\OneDrive\\Documentos\\IN6AM\\KinalSports\\authenthication-service\\auth-service\\src\\AuthService.Domain\\AuthService.Domain.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mzaba\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
