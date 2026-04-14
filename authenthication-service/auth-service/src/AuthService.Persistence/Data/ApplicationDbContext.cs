@@ -1,43 +1,49 @@
-using System;
 using AuthService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace AuthService.Persistence.Data;
 
-public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public DbSet<User> Users {get; set;}
-    public DbSet<Role> Roles {get; set;}
-    public DbSet<UserRole> UserRoles {get; set;}
-    public DbSet<UserProfile> UserProfiles {get; set;}
-    public DbSet<UserEmail> UserEmails {get; set;}
-    public DbSet<UserPasswordReset> UserPasswordResets {get; set;}
-
-    public static string ToSnakeCase(string input)
-    {
-        if(string.IsNullOrEmpty(input))
-            return input;
-
-        return string.Concat(
-            input.Select((c, i) => i > 0 && char.IsUpper(c) ? "_" + c : c.ToString())
-        ).ToLower();
-    }
-
+    public DbSet<User>? Users { get; set; }
+    public DbSet<UserProfile>? UserProfiles { get; set; }
+    public DbSet<Role>? Roles { get; set; }
+    public DbSet<UserRole>? UserRoles { get; set; }
+    public DbSet<UserEmail>? UserEmails { get; set; }
+    public DbSet<UserPasswordReset>? UserPasswordResets { get; set; }
+    public DbSet<RefreshToken>? RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Configuración de RefreshToken
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TokenHash).IsRequired();
+            entity.HasIndex(e => e.TokenHash).IsUnique();
+            entity.HasIndex(e => e.FamilyId);
+            entity.Property(e => e.ExpiresAt).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UserId).IsRequired().HasMaxLength(16);
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(e => e.UserId);
+        });
         base.OnModelCreating(modelBuilder);
 
-        foreach(var entity in modelBuilder.Model.GetEntityTypes())
+        // Configurar nomenclatura snake_case para todas las tablas y columnas
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
+            // Nombre de tabla en snake_case
             var tableName = entity.GetTableName();
-            //Snake case para nombres de tablas
             if (!string.IsNullOrEmpty(tableName))
             {
                 entity.SetTableName(ToSnakeCase(tableName));
             }
-            //Snake case para columnas
-            foreach(var property in entity.GetProperties())
+
+            // Nombres de columnas en snake_case
+            foreach (var property in entity.GetProperties())
             {
                 var columnName = property.GetColumnName();
                 if (!string.IsNullOrEmpty(columnName))
@@ -45,17 +51,19 @@ public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> option
                     property.SetColumnName(ToSnakeCase(columnName));
                 }
             }
-            //foreign keys y primary keys snake_case
-            foreach(var key in entity.GetKeys())
+
+            // Nombres de claves foráneas en snake_case
+            foreach (var key in entity.GetKeys())
             {
-                var KeyName = key.GetName();
-                if (!string.IsNullOrEmpty(KeyName))
+                var keyName = key.GetName();
+                if (!string.IsNullOrEmpty(keyName))
                 {
-                    key.SetName(ToSnakeCase(KeyName));
+                    key.SetName(ToSnakeCase(keyName));
                 }
             }
-            //indexes snake_case
-            foreach(var index in entity.GetIndexes())
+
+            // Nombres de índices en snake_case
+            foreach (var index in entity.GetIndexes())
             {
                 var indexName = index.GetDatabaseName();
                 if (!string.IsNullOrEmpty(indexName))
@@ -63,9 +71,9 @@ public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> option
                     index.SetDatabaseName(ToSnakeCase(indexName));
                 }
             }
-
         }
 
+        // Configuración de la entidad User
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -79,8 +87,7 @@ public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> option
                 .IsRequired()
                 .HasMaxLength(25);
             entity.Property(e => e.Username)
-                .IsRequired()
-                .HasMaxLength(25);
+                .IsRequired();
             entity.Property(e => e.Email)
                 .IsRequired();
             entity.Property(e => e.Password)
@@ -92,22 +99,21 @@ public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> option
                 .IsRequired();
             entity.Property(e => e.UpdatedAt)
                 .IsRequired();
-            //Indices para optimización de busquedas
             entity.HasIndex(e => e.Username).IsUnique();
             entity.HasIndex(e => e.Email).IsUnique();
-            //Relaciones
+            // Relaciones
+            entity.HasOne(e => e.UserProfile)
+                .WithOne(p => p.User)
+                .HasForeignKey<UserProfile>(p => p.UserId);
             entity.HasMany(e => e.UserRoles)
                 .WithOne(ur => ur.User)
                 .HasForeignKey(ur => ur.UserId);
-            entity.HasOne(e => e.UserProfile)
-                .WithOne(up => up.User)
-                .HasForeignKey<UserProfile>(up => up.UserId);
             entity.HasOne(e => e.UserEmail)
-                .WithOne(up => up.User)
-                .HasForeignKey<UserEmail>(up => up.UserId);
+                .WithOne(ue => ue.User)
+                .HasForeignKey<UserEmail>(ue => ue.UserId);
             entity.HasOne(e => e.UserPasswordReset)
-                .WithOne(up => up.User)
-                .HasForeignKey<UserPasswordReset>(up => up.UserId);
+                .WithOne(upr => upr.User)
+                .HasForeignKey<UserPasswordReset>(upr => upr.UserId);
         });
 
         // Configuración de UserProfile
@@ -135,9 +141,6 @@ public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> option
                 .IsRequired();
             entity.Property(e => e.UpdatedAt)
                 .IsRequired();
-            entity.HasMany(e => e.UserRoles)
-                .WithOne(r => r.Role)
-                .HasForeignKey(r => r.RoleId);
         });
 
         // Configuración de UserRole
@@ -176,7 +179,7 @@ public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> option
             entity.Property(e => e.EmailVerificationToken).HasMaxLength(256);
         });
 
-        //Configuración UserPasswordReset
+        // Configuración de UserPasswordReset
         modelBuilder.Entity<UserPasswordReset>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -189,41 +192,6 @@ public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> option
         });
     }
 
-    private void UpdateTimestamps()
-    {
-        var entries = ChangeTracker.Entries()
-            .Where(e => (e.Entity is User || e.Entity is Role || e.Entity is UserRole)
-            && (e.State == EntityState.Added || e.State == EntityState.Modified));
-
-        foreach(var entry in entries)
-        {
-            if(entry.Entity is User user)
-            {
-                if(entry.State == EntityState.Added)
-                {
-                    user.CreatedAt = DateTime.UtcNow;
-                }
-                user.UpdatedAt = DateTime.UtcNow;
-            }
-            else if(entry.Entity is Role role)
-            {
-                if(entry.State == EntityState.Added)
-                {
-                    role.CreatedAt = DateTime.UtcNow;
-                }
-                role.UpdatedAt = DateTime.UtcNow;
-            }
-            else if(entry.Entity is UserRole userRole)
-            {
-                if(entry.State == EntityState.Added)
-                {
-                    userRole.CreatedAt = DateTime.UtcNow;
-                }
-                userRole.UpdatedAt = DateTime.UtcNow;
-            }
-        }
-    }
-
     public override int SaveChanges()
     {
         UpdateTimestamps();
@@ -234,5 +202,48 @@ public class ApplicationDbContext (DbContextOptions<ApplicationDbContext> option
     {
         UpdateTimestamps();
         return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateTimestamps()
+    {
+        var entries = ChangeTracker.Entries()
+            .Where(e => (e.Entity is User || e.Entity is Role || e.Entity is UserRole)
+                        && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        foreach (var entry in entries)
+        {
+            if (entry.Entity is User user)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    user.CreatedAt = DateTime.UtcNow;
+                }
+                user.UpdatedAt = DateTime.UtcNow;
+            }
+            else if (entry.Entity is Role role)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    role.CreatedAt = DateTime.UtcNow;
+                }
+                role.UpdatedAt = DateTime.UtcNow;
+            }
+            else if (entry.Entity is UserRole userRole)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    userRole.CreatedAt = DateTime.UtcNow;
+                }
+                userRole.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+    }
+
+    private static string ToSnakeCase(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        return string.Concat(input.Select((c, i) => i > 0 && char.IsUpper(c) ? "_" + c : c.ToString())).ToLower();
     }
 }

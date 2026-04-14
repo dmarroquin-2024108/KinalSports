@@ -33,16 +33,18 @@ public class User
 
     public bool Status {get; set;} = false;
 
-    public DateTime CreatedAt {get; set;} = DateTime.UtcNow;
+   [Required]
+    public DateTime CreatedAt { get; set; }
 
-    public DateTime UpdatedAt {get; set;} = DateTime.UtcNow;
+    [Required]
+    public DateTime UpdatedAt { get; set; }
 
-    public ICollection<UserRole> UserRoles { get; set; } = [];
-
+    // Relaciones de navegación
     public UserProfile UserProfile { get; set; } = null!;
-
+    public ICollection<UserRole> UserRoles { get; set; } = [];
     public UserEmail UserEmail { get; set; } = null!;
-
     public UserPasswordReset UserPasswordReset { get; set; } = null!;
 
+    // Refresh tokens
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

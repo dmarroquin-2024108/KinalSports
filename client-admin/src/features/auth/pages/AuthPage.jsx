@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { LoginForm } from "../components/LoginForm.jsx" //Componentes Hijos
 import { ForgotPassword } from "../components/ForgotPassword.jsx" //Hijo
- 
+
 export const AuthPage = () => {
     const [isForgot, setIsForgot] = useState(false);
     return (
@@ -14,19 +14,19 @@ export const AuthPage = () => {
                         className="h-20 w-auto"
                     />
                 </div>
- 
-                <div className="text-center mb-6">                
+
+                <div className="text-center mb-6">
                     <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
                         {isForgot ? 'Recuperar Contraseña' : 'Bienvenido de nuevo'}
                     </h1>
                     <p className="text-gray-600 text-base max-w-md mx-auto">
                         {isForgot
                             ? 'Ingresa tu correo para recuperar contraseña'
-                            : 'Ingresa a tu cuenta de adminstrador' 
+                            : 'Ingresa a tu cuenta de adminstrador'
                         }
                     </p>
                 </div>
- 
+
                 {isForgot ? (
                     <ForgotPassword
                         onSwitch={() => {
