@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "H+eEaGKbQso=",
+  "dgSpecHash": "dOb3A8ca3r4=",
   "success": true,
-  "projectFilePath": "C:\\Repositorios\\KinalSports\\authenthication-service\\auth-service\\src\\AuthService.Domain\\AuthService.Domain.csproj",
+  "projectFilePath": "C:\\Users\\Informatica\\Documents\\IN6AM\\Repositorios\\KinalSports\\authenthication-service\\auth-service\\src\\AuthService.Domain\\AuthService.Domain.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\mzaba\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512"
+    "C:\\Users\\Informatica\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512"
   ],
   "logs": []
 }
