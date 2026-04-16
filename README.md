@@ -1,2 +1,2 @@
-# Respaldo_Tareas_In6Am
-En este repositorio se van a guardar las tareas y archivos de cada ejercicio de taller
+# Kinal Sports
+Repositorio de respaldo para las cosas que hacemos en clase (por si me borran mi carpeta lo de la tarde :´v)
