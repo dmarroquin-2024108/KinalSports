@@ -3,6 +3,11 @@ import { AuthPage } from "../../features/auth/pages/AuthPage.jsx"
 import { DashboardPage } from "../layouts/DashboardPage.jsx"
 import { ProtectedRoutes } from "./ProtectedRoutes.jsx"
 import {UnauthorizedPage} from '../../features/auth/pages/UnauthorizedPage.jsx'
+import { Fields } from "../../features/fields/components/Fields.jsx"
+import { Tournaments } from "../../features/tournaments/components/Tournaments.jsx"
+import { Teams } from "../../features/teams/components/Teams.jsx"
+import { Users } from "../../features/users/components/Users.jsx"
+import { Reservations } from "../../features/reservations/components/Reservations.jsx"
 
 export const AppRoutes = () => {
   return (
@@ -17,6 +22,11 @@ export const AppRoutes = () => {
             </ProtectedRoutes>
           }
         />
+        <Route path="/fields" element={<Fields />} />
+        <Route path="/teams" element={<Teams/>} />
+        <Route path="/reservations" element={<Reservations />} />
+        <Route path="/tournaments" element={<Tournaments />} />
+        <Route path="/users" element={<Users />} />
     </Routes>
   )
 }
