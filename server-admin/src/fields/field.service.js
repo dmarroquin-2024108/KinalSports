@@ -1,18 +1,86 @@
-import Field from './field.model.js'
+import Field from './field.model.js';
+import { cloudinary } from '../../middlewares/file-uploader.js';
 
-export const createFieldRecord = async ({fieldData, file})=>{
-    const data = {...fieldData}
+export const fetchFields = async ({
+    page = 1,
+    limit = 10,
+    isActive = true,
+}) => {
+    const filter = { isActive };
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
 
-    if(file){
+    const fields = await Field.find(filter)
+        .limit(limitNumber * 1)
+        .skip((pageNumber - 1) * limitNumber)
+        .sort({ createdAt: -1 });
+
+    const total = await Field.countDocuments(filter);
+
+    return {
+        fields,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalRecords: total,
+            limit,
+        },
+    };
+};
+
+export const fetchFieldById = async (id) => {
+    return Field.findById(id);
+};
+
+export const createFieldRecord = async ({ fieldData, file }) => {
+    const data = { ...fieldData }
+
+    if (file) {
         const extension = file.originalname.split('.').pop();
         const filename = file.filename;
         const relativePath = filename.substring(filename.indexOf('fields/'));
         data.photo = `${relativePath}.${extension}`
-    }else{
+    } else {
         data.photo = 'fields/kinal_sports_tax3fw'
     }//if else
 
-        const field = new Field(data);
-        await field.save();
-        return field;
+    const field = new Field(data);
+    await field.save();
+    return field;
 }
+
+export const updateFieldRecord = async ({ id, updateData, file }) => {
+    const data = { ...updateData };
+
+    if (file) {
+        // Buscar campo actual
+        const currentField = await Field.findById(id);
+
+        if (currentField && currentField.photo) {
+            try {
+                // Obtener public_id exacto desde file.filename anterior
+                const url = currentField.photo;
+                const parts = url.split('/');
+                const fileNameWithExt = parts[parts.length - 1]; // ej: cancha123.jpg
+                const publicId = `kinal_sports/fields/${fileNameWithExt.split('.')[0]}`; // quitar extensión
+                await cloudinary.uploader.destroy(publicId);
+            } catch (deleteError) {
+                console.error(
+                    `Error al eliminar imagen anterior de Cloudinary: ${deleteError.message}`
+                );
+            }
+        }
+
+        // Guardar nueva URL pública en la DB
+        data.photo = file.path;
+    }
+
+    return Field.findByIdAndUpdate(id, data, {
+        new: true,
+        runValidators: true,
+    });
+};
+
+export const updateFieldStatus = async ({ id, isActive }) => {
+    return Field.findByIdAndUpdate(id, { isActive }, { new: true });
+};
