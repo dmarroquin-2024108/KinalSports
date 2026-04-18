@@ -51,7 +51,7 @@ export const createTeamRecord = async ({ teamData, file }) => {
     if (file) {
         data.logo = file.path; // Guardar la ruta relativa del archivo subido
     } else {
-        data.logo = 'fields/kinal_sports_nyvxo5';
+        data.logo = 'fields/kinal_sports_tax3fw';
     }
 
     const team = new Team(data);
