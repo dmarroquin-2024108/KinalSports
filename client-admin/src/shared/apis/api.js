@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '../../features/auth/store/authStore.js';
 
 //Crear instancias de axios para cada servicio
 const axiosAuth = axios.create({
@@ -16,5 +17,14 @@ const axiosAdmin = axios.create({
         'Content-Type' : 'application/json'
     }
 });
+
+axiosAdmin.interceptors.request.use((config)=>{
+    config._axiosClient = 'admin';
+    const token = useAuthStore.getState().token;
+    if(token){
+        config.headers.Authorization = `Bearer ${token}`;
+    }//Extraer el token si no es undefined
+    return config;
+})//Crear la llave el autorization
 
 export {axiosAuth, axiosAdmin};
