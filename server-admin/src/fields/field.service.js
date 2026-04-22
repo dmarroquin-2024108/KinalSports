@@ -36,12 +36,9 @@ export const createFieldRecord = async ({ fieldData, file }) => {
     const data = { ...fieldData }
 
     if (file) {
-        const extension = file.originalname.split('.').pop();
-        const filename = file.filename;
-        const relativePath = filename.substring(filename.indexOf('fields/'));
-        data.photo = `${relativePath}.${extension}`
+        data.photo = file.path;
     } else {
-        data.photo = 'fields/kinal_sports_tax3fw'
+        data.photo = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/v1770989654/kinal_sports_tax3fw.png`;
     }//if else
 
     const field = new Field(data);
