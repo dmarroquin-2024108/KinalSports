@@ -5,7 +5,7 @@ export const getFields = async()=>{
 }
 
 export const createField = async(data)=>{
-    return await axiosAdmin.post("fields", data, {
+    return await axiosAdmin.post("/fields", data, {
         headers:{"Content-Type": "multipart/form-data"},
     })
 }

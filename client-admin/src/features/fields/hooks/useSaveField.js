@@ -13,7 +13,7 @@ export const useSaveField =()=>{
         formData.append("capacity", data.capacity);
 
         if(data.photo?.length>0){
-            formData.append("image", data.photo[0]);
+            formData.append("photo", data.photo[0]);
         }
         await createField(formData);
     }

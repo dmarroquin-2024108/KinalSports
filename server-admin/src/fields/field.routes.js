@@ -23,7 +23,7 @@ router.get('/:id', authOrInternal, validateGetFieldById, getFieldById);
 // Rutas PUT - Solo para administradores
 router.put(
     '/:id',
-    uploadFieldImage.single('image'),
+    uploadFieldImage.single('photo'),
     cleanupUploadedFileOnFinish,
     validateUpdateFieldRequest,
     requireRole('ADMIN_ROLE'), // Validar rol antes de procesar archivos
