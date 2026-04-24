@@ -1,24 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { useUserManagementStore } from "../store/useUserManagementStore.js";
-// import { useAuthStore } from "../../auth/store/authStore.js";
+import { useAuthStore } from "../../auth/store/authStore.js";
 import { Spinner } from "../../auth/components/Spinner.jsx";
-// import { CreateUserModal } from "./CreateUserModal.jsx";
+import { CreateUserModal } from "./CreateUserModal.jsx";
 // import { UserDetailModal } from "./UserDetailModal.jsx";
 import { showError } from "../../../shared/utils/toast.js";
-// import { showSuccess } from "../../../shared/utils/toast.js";
+import { showSuccess } from "../../../shared/utils/toast.js";
 const PAGE_SIZE = 8;
 export const Users = () => {
   // Solo lo necesario para listar
   const { users, loading, error, getAllUsers } = useUserManagementStore();
   // Funcionalidades no necesarias para listar (comentadas)
   // const { updateUserRole } = useUserManagementStore();
-  // const registerUser = useAuthStore((state) => state.register);
+  const registerUser = useAuthStore((state) => state.register);
   // const currentUser = useAuthStore((state) => state.user);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [page, setPage] = useState(1);
   // Estados de modales/edición (comentados porque no se usarán por ahora)
-  // const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
   // const [openDetailModal, setOpenDetailModal] = useState(false);
   // const [selectedUser, setSelectedUser] = useState(null);
   useEffect(() => {
@@ -52,6 +52,7 @@ export const Users = () => {
     const start = (currentPage - 1) * PAGE_SIZE;
     return filteredUsers.slice(start, start + PAGE_SIZE);
   }, [filteredUsers, currentPage]);
+
   // Edición de usuario / cambio de rol (comentado)
   // const handleOpenDetail = (user) => {
   //   setSelectedUser(user);
@@ -67,17 +68,18 @@ export const Users = () => {
   //     showError(res.error || "Error al actualizar rol");
   //   }
   // };
+
   // Crear usuario (comentado)
-  // const handleCreate = async (formData) => {
-  //   const res = await registerUser(formData);
-  //   if (res.success) {
-  //     showSuccess("Usuario creado. Se envió correo de verificación.");
-  //     await fetchUsers(undefined, { force: true });
-  //     return true;
-  //   }
-  //   showError(res.error || "No se pudo crear el usuario");
-  //   return false;
-  // };
+  const handleCreate = async (formData) => {
+    const res = await registerUser(formData);
+    if (res.success) {
+      showSuccess("Usuario creado. Se envió correo de verificación.");
+      await fetchUsers(undefined, { force: true });
+      return true;
+    }
+    showError(res.error || "No se pudo crear el usuario");
+    return false;
+  };
   if (loading && users.length === 0) return <Spinner />;
   return (
     <div className="p-4">
@@ -88,15 +90,12 @@ export const Users = () => {
             Listado de usuarios registrados
           </p>
         </div>
-        {/* Botón para crear usuario (comentado por ahora) */}
-        {/*
         <button
           className="bg-main-blue px-4 py-2 rounded text-white hover:opacity-90 transition"
           onClick={() => setOpenCreateModal(true)}
         >
           + Agregar Usuario
         </button>
-        */}
       </div>
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -156,8 +155,8 @@ export const Users = () => {
                     <td className="px-4 py-3">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${u.role === "ADMIN_ROLE"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-700"
                           }`}
                       >
                         {u.role}
@@ -209,8 +208,6 @@ export const Users = () => {
           </div>
         </div>
       </div>
-      {/* Modal crear usuario (comentado por ahora) */}
-      {/*
       <CreateUserModal
         isOpen={openCreateModal}
         onClose={() => setOpenCreateModal(false)}
@@ -218,7 +215,6 @@ export const Users = () => {
         loading={loading}
         error={error}
       />
-      */}
       {/* Modal detalle/edición usuario (comentado por ahora) */}
       {/*
       <UserDetailModal
