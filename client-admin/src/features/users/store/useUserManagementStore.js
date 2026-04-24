@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { getAllUsers as getAllUsersRequest } from "../../../shared/apis";
 
-export const useManagementStore = create((set, get)=>({
+export const useUserManagementStore = create((set, get)=>({
     users:[],
     loading: false,
     error: null,
