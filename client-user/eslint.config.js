@@ -1,0 +1,10 @@
+export default {
+  root: true,
+  extends: [
+    'eslint:recommended'
+  ],
+  env: {
+    es2021: true,
+    node: true
+  }
+};

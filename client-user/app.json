@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "client-user",
+    "slug": "client-user",
+    "platforms": ["ios", "android", "web"],
+    "orientation": "portrait",
+    "icon": "./src/features/assets/icon.png",
+    "splash": {
+      "image": "./src/features/assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": ["**/*"]
+  }
+}
