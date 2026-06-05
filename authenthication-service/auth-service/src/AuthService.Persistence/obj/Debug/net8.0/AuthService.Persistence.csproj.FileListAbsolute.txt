@@ -91,3 +91,4 @@ C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Persistence\obj\Debug\net8.0\AuthService.Persistence.pdb
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Persistence\obj\Debug\net8.0\AuthService.Persistence.genruntimeconfig.cache
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Persistence\obj\Debug\net8.0\ref\AuthService.Persistence.dll
+C:\Users\Informatica\Documents\IN6AM\KinalSports\authenthication-service\auth-service\src\AuthService.Persistence\obj\Debug\net8.0\AuthService.Persistence.sourcelink.json

@@ -75,3 +75,4 @@ C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\refint\AuthService.Application.dll
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthService.Application.pdb
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\ref\AuthService.Application.dll
+C:\Users\Informatica\Documents\IN6AM\KinalSports\authenthication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthService.Application.sourcelink.json

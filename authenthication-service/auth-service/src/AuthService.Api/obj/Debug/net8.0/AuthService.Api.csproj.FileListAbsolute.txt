@@ -739,3 +739,4 @@ C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Api\obj\Debug\net8.0\AuthService.Api.pdb
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Api\obj\Debug\net8.0\AuthService.Api.genruntimeconfig.cache
 C:\Repositorios\KinalSports\authenthication-service\auth-service\src\AuthService.Api\obj\Debug\net8.0\ref\AuthService.Api.dll
+C:\Users\Informatica\Documents\IN6AM\KinalSports\authenthication-service\auth-service\src\AuthService.Api\obj\Debug\net8.0\AuthService.Api.sourcelink.json
