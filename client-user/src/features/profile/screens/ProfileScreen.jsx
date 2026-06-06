@@ -8,6 +8,7 @@ import Input from '../../../shared/components/common/Input';
 import Button from '../../../shared/components/common/Button';
 import { Card, LoadingSpinner } from '../../../shared/components/common/Common';
 import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { authClient } from '../../../shared/api/authClient';
 
 // tiny default avatar (gray circle) as data URI
 const DEFAULT_AVATAR = 'data:image/svg+xml;utf8,' +
@@ -30,7 +31,7 @@ export default function ProfileScreen() {
     setLoading(true);
     setError('');
     try {
-      const res = await userClient.get('/users/profile');
+      const res = await authClient.get('/profile');
       const data = res.data.data || res.data;
       setProfile(data || {});
       reset({
@@ -58,7 +59,7 @@ export default function ProfileScreen() {
         phone: vals.phone,
         favoriteSports: vals.favoriteSports ? vals.favoriteSports.split(',').map((s) => s.trim()) : []
       };
-      const res = await userClient.put('/users/profile', payload);
+      const res = await authClient.put('/users/profile', payload);
       const data = res.data.data || res.data;
       setProfile(data || {});
       updateUser(data || {});
@@ -85,9 +86,16 @@ export default function ProfileScreen() {
     );
   }
 
-  const avatarUri = profile?.avatar || '';
-  const imageSource = avatarUri && typeof avatarUri === 'string' && avatarUri.startsWith('http') ? { uri: avatarUri } : { uri: DEFAULT_AVATAR };
+  const BASE_URL = 'https://res.cloudinary.com/divzjcxko/image/upload/auth_ks_in6am/profiles/';
+  const getAvatarUrl = (avatar) => {
+    if (!avatar) return null;
+    if (avatar.startsWith('http')) return avatar;
+    return `${BASE_URL}${avatar}`;
+  };
 
+  const imageSource = getAvatarUrl(profile?.avatar)
+    ? { uri: getAvatarUrl(profile?.avatar) }
+    : require('../../assets/avatarDefault-1749508519496.png');
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Card>
