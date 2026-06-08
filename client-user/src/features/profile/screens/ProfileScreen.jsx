@@ -9,6 +9,7 @@ import Button from '../../../shared/components/common/Button';
 import { Card, LoadingSpinner } from '../../../shared/components/common/Common';
 import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
 import { authClient } from '../../../shared/api/authClient';
+import * as ImagePicker from 'expo-image-picker';
 
 // tiny default avatar (gray circle) as data URI
 const DEFAULT_AVATAR = 'data:image/svg+xml;utf8,' +
@@ -19,7 +20,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState('');
-
+  const [selectedImage, setSelectedImage] = useState(null);
   const updateUser = useAuthStore((s) => s.updateUser);
   const logout = useAuthStore((s) => s.logout);
 
@@ -46,6 +47,19 @@ export default function ProfileScreen() {
     }
   }, [reset]);
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+      allowsEditing: true,
+      aspect: [1, 1]
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0]);
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
@@ -53,19 +67,52 @@ export default function ProfileScreen() {
   const onSave = async (vals) => {
     setLoading(true);
     setError('');
+
     try {
-      const payload = {
-        displayName: vals.displayName,
-        phone: vals.phone,
-        favoriteSports: vals.favoriteSports ? vals.favoriteSports.split(',').map((s) => s.trim()) : []
-      };
-      const res = await authClient.put('/users/profile', payload);
+      const formData = new FormData();
+      formData.append(
+        'Name',
+        vals.displayName || vals.name || ''
+      );
+      formData.append(
+        'Surname',
+        profile?.surname || ''
+      );
+      formData.append(
+        'Phone',
+        vals.phone || ''
+      );
+
+      if (selectedImage) {
+        formData.append('ProfilePicture', {
+          uri: selectedImage.uri,
+          name:
+            selectedImage.fileName || `profile-${Date.now()}.jpg`,
+          type:
+            selectedImage.mimeType ||
+            'image/jpeg'
+        });
+      }
+
+      const res = await authClient.put(
+        '/profile', formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
       const data = res.data.data || res.data;
-      setProfile(data || {});
-      updateUser(data || {});
+
+      setProfile(data);
+      updateUser(data);
+      setSelectedImage(null);
       setEditing(false);
     } catch (err) {
-      setError(err.response?.data?.message || 'No se pudo actualizar el perfil');
+      setError(
+        err.response?.data?.message || 'No se pudo actualizar el perfil'
+      );
     } finally {
       setLoading(false);
     }
@@ -100,10 +147,20 @@ export default function ProfileScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Card>
         <View style={styles.header}>
-          <Image source={imageSource} style={styles.avatar} />
+          <Image source={imageSource?.uri
+            ? { uri: selectedImage.uri }
+            : imageSource
+          } style={styles.avatar} />
           <View style={styles.info}>
             <Text style={styles.name}>{profile?.displayName || profile?.name || 'Usuario'}</Text>
+            <Text style={styles.tit}>{profile?.username || ''}</Text>
             <Text style={styles.sub}>{profile?.email || ''}</Text>
+            <Text style={styles.sub}>{profile?.phone || ''}</Text>
+            <TouchableOpacity onPress={pickImage}>
+              <Text style={styles.editText}>
+                Cambiar foto
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -122,13 +179,6 @@ export default function ProfileScreen() {
               control={control}
               name="phone"
               render={({ field: { onChange, value } }) => <Input label="Teléfono" value={value} onChangeText={onChange} keyboardType="phone-pad" />}
-            />
-            <Controller
-              control={control}
-              name="favoriteSports"
-              render={({ field: { onChange, value } }) => (
-                <Input label="Deportes favoritos (separados por comas)" value={value} onChangeText={onChange} />
-              )}
             />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}

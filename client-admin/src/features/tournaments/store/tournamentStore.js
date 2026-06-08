@@ -4,7 +4,7 @@ import {
   createTournament as createTournamentRequest,
   updateTournament as _updateTournamentRequest,
   deleteTournament as _deleteTournamentRequest,
-} from "../../../shared/api";
+} from "../../../shared/apis";
 
 export const useTournamentsStore = create((set, get) => ({
   tournaments: [],

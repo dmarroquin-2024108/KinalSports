@@ -9,7 +9,7 @@ import { showSuccess } from '../../../shared/utils/toast.js';
 const PAGE_SIZE = 8;
 export const Users = () => {
   // Solo lo necesario para listar
-  const { users, loading, error, getAllUsers } = useUserManagementStore();
+  const { users, loading, error, fetchUsers } = useUserManagementStore();
   // Funcionalidades no necesarias para listar (comentadas)
   // const { updateUserRole } = useUserManagementStore();
   const registerUser = useAuthStore((state) => state.register);
@@ -22,8 +22,8 @@ export const Users = () => {
   // const [openDetailModal, setOpenDetailModal] = useState(false);
   // const [selectedUser, setSelectedUser] = useState(null);
   useEffect(() => {
-    getAllUsers();
-  }, [getAllUsers]);
+    fetchUsers();
+  }, [fetchUsers]);
   useEffect(() => {
     if (error) {
       showError(error);

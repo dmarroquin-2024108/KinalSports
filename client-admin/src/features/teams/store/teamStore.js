@@ -4,7 +4,7 @@ import {
   createTeam as createTeamRequest,
   updateTeam as updateTeamRequest,
   deleteTeam as deleteTeamRequest,
-} from "../../../shared/api";
+} from "../../../shared/apis";
 
 export const useTeamsStore = create((set, get) => ({
   teams: [],

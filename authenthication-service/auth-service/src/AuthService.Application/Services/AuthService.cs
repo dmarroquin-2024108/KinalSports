@@ -436,4 +436,51 @@ public class AuthService(
         var users = await userRepository.GetUsersAsync();
         return users.Select(MapToUserResponseDto);
     }
+
+    public async Task<UserResponseDto?> UpdateUserProfileAsync(string userId, UpdateUserProfileDto updateDto)
+    {
+        var user = await userRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            return null;
+        }
+
+        // Actualizar datos del usuario
+        user.Name = updateDto.Name;
+        user.Surname = updateDto.Surname;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        // Actualizar foto de perfil si se proporciona
+        if (updateDto.ProfilePicture != null && updateDto.ProfilePicture.Size > 0)
+        {
+            var (isValid, errorMessage) = FileValidator.ValidateImage(updateDto.ProfilePicture);
+            if (!isValid)
+            {
+                logger.LogWarning($"File validation failed: {errorMessage}");
+                throw new BusinessException(ErrorCodes.INVALID_FILE_FORMAT, errorMessage!);
+            }
+
+            try
+            {
+                var fileName = FileValidator.GenerateSecureFileName(updateDto.ProfilePicture.FileName);
+                var profilePicturePath = await _cloudinaryService.UploadImageAsync(updateDto.ProfilePicture, fileName);
+                user.UserProfile.ProfilePicture = profilePicturePath;
+            }
+            catch (Exception)
+            {
+                logger.LogImageUploadError();
+                throw new BusinessException(ErrorCodes.IMAGE_UPLOAD_FAILED, "Failed to upload profile image");
+            }
+        }
+
+        // Actualizar teléfono en el perfil
+        user.UserProfile.Phone = updateDto.Phone;
+
+        // Guardar cambios
+        await userRepository.UpdateAsync(user);
+
+        logger.LogInformation("User profile updated successfully for user {UserId}", userId);
+
+        return MapToUserResponseDto(user);
+    }
 }

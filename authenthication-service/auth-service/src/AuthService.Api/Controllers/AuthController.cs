@@ -2,6 +2,7 @@ using System;
 using AuthService.Application.DTOs;
 using AuthService.Application.DTOs.Email;
 using AuthService.Application.Interfaces;
+using AuthService.Application.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -188,6 +189,47 @@ namespace AuthService.Api.Controllers
 
             var users = await _authService.GetAllUsersAsync();
             return Ok(users);
+        }
+
+        [HttpPut("profile")]
+        [Authorize]
+        [RequestSizeLimit(10 * 1024 * 1024)] // 10MB límite
+        [EnableRateLimiting("ApiPolicy")]
+        public async Task<ActionResult<object>> UpdateProfile([FromForm] UpdateUserProfileDto updateDto)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "sub" || c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+            if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var updatedUser = await _authService.UpdateUserProfileAsync(userIdClaim.Value, updateDto);
+                if (updatedUser == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Usuario no encontrado"
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Perfil actualizado exitosamente",
+                    data = updatedUser
+                });
+            }
+            catch (BusinessException ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
     }
 }
